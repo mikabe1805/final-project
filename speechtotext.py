@@ -1,6 +1,7 @@
 # install pipwin
 # install pyaudio
 # install speechRecognition
+#  https://cmusphinx.github.io/wiki/download/
 import speech_recognition as sr
 import time
 
@@ -15,7 +16,7 @@ def get_speech(recognizer, mic):
 
     #adjust microphone sensitivity and get sound from mic
     with mic as source:
-        # recognizer.adjust_for_ambient_noise(source)
+        recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
 
     # response
@@ -26,7 +27,7 @@ def get_speech(recognizer, mic):
     }
 
     try:
-        response["transcription"] = recognizer.recognize_google(audio)
+        response["transcription"] = recognizer.recognize_sphinx(audio)
     except sr.RequestError:
         # problems with API
         response["success"] = False
@@ -42,15 +43,19 @@ if __name__ == "__main__":
     rec = sr.Recognizer()
     mic = sr.Microphone()
     print("hi!")
-    time.sleep(3)
+    #time.sleep(3)
+    answer = input("would you like to pick a mic?(Y/N) ")
+    if answer.lower() == "y":
+        print(sr.Microphone.list_microphone_names())
+        index = input("choose an index: ")
+        mic = sr.Microphone(device_index=int(index))
     speech = get_speech(rec, mic)
     while True:
-        if speech["success"]:
+        if speech["transcription"] != None:
             if speech["error"]:
                 print("ERROR: {}".format(speech["error"]))
-                break
             print(speech["transcription"])
-            with open('speech.txt', 'w') as f:
-                f.write(str(speech["transcription"]))
+            with open('speech.txt', 'a') as f:
+                f.write(str(speech["transcription"] + " "))
         speech = get_speech(rec, mic)
 
