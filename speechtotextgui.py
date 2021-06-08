@@ -19,6 +19,7 @@ class manager (object):
     def switch (self):
           
         # Destroys the Character Selection window
+
         self.current_screen.destroy()
 
         # Continue on - set up the Prepare To Battle screen!
@@ -30,11 +31,11 @@ class manager (object):
         This also initializes the character_roster property.
         '''
         # Changes the window's title
-        self.root.title ("Mic list")
+        self.root.title ("mic list")
         # Creates and displays a Character Selection screen
         self.current_screen = ML(master = self.root, returnn = self.return_to_character
                                                         )
-    
+     
     def return_to_character (self, selected_mic_index):
         # return mic index
         self.mic_index = selected_mic_index

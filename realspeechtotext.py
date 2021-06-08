@@ -15,7 +15,7 @@ class STT(Frame):
         if mic_index == None:
             self.mic = sr.Microphone()
         else:
-            self.mic = sr.Microphone(device_index=mic_index)
+            self.mic = sr.Microphone(device_index=int(mic_index))
 
         self.grid()
         self.create_widgets()
@@ -25,14 +25,14 @@ class STT(Frame):
         Label(self, text = "").grid(row = 1, column = 3)
 
         # create mic and recognizer
-        Button(self, text = "speech to text", fg = "white", bg = "grey", command = self.speech()).grid(row =2, column = 2, columnspan = 2, sticky = E)
+        Button(self, text = "speech to text", fg = "white", bg = "grey", command = self.speech).grid(row =2, column = 2, columnspan = 2, sticky = E)
         Label(self, text = "").grid(row = 3, column = 3)
-        Button(self, text = "select mic", fg = "white", bg = "grey", command = self.get_mic()).grid(row =4, column = 1, columnspan = 2, sticky = E)
-        Button(self, text = "toggle reduce ambient noise", fg = "white", bg = "grey", command = self.ambient_noise()).grid(row =4, column = 3, columnspan = 2, sticky = E)
+        Button(self, text = "select mic", fg = "white", bg = "grey", command = self.get_mic).grid(row =4, column = 1, columnspan = 2, sticky = E)
+        Button(self, text = "toggle reduce ambient noise", fg = "white", bg = "grey", command = self.ambient_noise).grid(row =4, column = 3, columnspan = 2, sticky = E)
         Label(self, text = "").grid(row = 5, column = 3)
         Label(self, text = "").grid(row = 6, column = 3)
         self.text = Label(self, text = "")
-        self.text.grid(row = 7, column = 3)
+        self.text.grid(row = 7, column = 3, columnspan = 5, rowspan=5)
 
     def speech(self):
         speech = self.get_speech()
@@ -44,6 +44,8 @@ class STT(Frame):
             self.text.grid(row = 7, column = 3)
             with open('speech.txt', 'a') as f:
                 f.write(str(speech["transcription"] + " "))
+            #time.sleep(3)
+            #self.text.destroy()
             
 
     def get_speech(self):
