@@ -6,7 +6,7 @@ import speech_recognition as sr
 import time
 from tkinter import *
 
-class STT(Frame):
+class STTT(Frame):
     def __init__(self, master):
         super().__init__(master)
         self.ambient = False
@@ -29,7 +29,7 @@ class STT(Frame):
             elif speech["transcription"] != None:
                 print(speech["transcription"])
                 with open('speech.txt', 'a') as f:
-                    f.write(str(speech["transcription"] + " "))
+                    f.write(str(speech["transcription"] + "\n"))
             speech = self.get_speech(rec, mic)
 
     def get_speech(self, recognizer, mic):

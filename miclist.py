@@ -14,9 +14,6 @@ class ML(Frame):
         self.mic_index = StringVar()
         self.mic_index.set(None)
 
-        # empty label for spacing
-        Label(self, text = "").grid(row = 1, column = 3)
-
         # create mic radio buttons
         row = 2
         for mic in sr.Microphone.list_microphone_names():
@@ -26,7 +23,7 @@ class ML(Frame):
             row += 1
 
         # create mic selected button
-        Button(self, text = "input selected", fg = "white", bg = "grey", command = self.selected_clicked).grid(row = row, column = 4, columnspan = 2, sticky = E)
+        Button(self, text = "input selected", fg = "white", bg = "grey", command = self.selected_clicked).grid(row = 1, column = 4, columnspan = 2, sticky = E)
 
     def selected_clicked(self):
         self.returnn(self.mic_index.get())
