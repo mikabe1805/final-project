@@ -38,6 +38,7 @@ import javafx.util.Duration;
 public class gradecalculator extends Application {
     int slot;
     int counter = 0;
+    Label gradesText = new Label("");
     public static void main(String[] args) {
         launch(args);
     }
@@ -140,7 +141,6 @@ public class gradecalculator extends Application {
         mainButtons.getChildren().addAll(figureOut, enterPoints);
         mainButtons.setSpacing(10);
         mainButtons.setAlignment(Pos.CENTER);
-        
 
         VBox middleVBox = new VBox();
         middleVBox.setSpacing(20);
@@ -204,6 +204,35 @@ public class gradecalculator extends Application {
         figureOutVBox.setSpacing(25);
         figureOutVBox.setAlignment(Pos.CENTER);
 
+        VBox averageBox = new VBox();
+        Label averageLabel = new Label("Average:");
+        averageLabel.setStyle("-fx-font-size: 40");
+        Label percentLabel = new Label("");
+        percentLabel.setStyle("-fx-font-size: 70");
+        Button continueButton = new Button("Continue");
+        continueButton.setStyle("-fx-font-size: 20");
+        averageBox.getChildren().addAll(averageLabel, percentLabel, continueButton);
+        averageBox.setAlignment(Pos.CENTER);
+
+        HBox aimingHBox = new HBox();
+        TextField aimingTextField = new TextField();
+        aimingTextField.setStyle("-fx-font-size: 20");
+        aimingTextField.setPrefSize(80, 40);
+        Label percentSign = new Label("%");
+        percentSign.setStyle("-fx-font-size: 50");
+        aimingHBox.getChildren().addAll(aimingTextField, percentSign);
+        aimingHBox.setSpacing(10);
+        aimingHBox.setAlignment(Pos.CENTER);
+
+        VBox percentAimingBox = new VBox();
+        Label percentAimingLabel = new Label("What percent are you aiming for?");
+        percentAimingLabel.setStyle("-fx-font-size: 40");
+        Button continueButton2 = new Button("Continue");
+        continueButton2.setStyle("-fx-font-size: 20");
+        percentAimingBox.getChildren().addAll(percentAimingLabel, aimingHBox, continueButton2);
+        percentAimingBox.setAlignment(Pos.CENTER);
+        percentAimingBox.setSpacing(25);
+
         Label select = new Label("Select a slot.\nTE = Total Points Earned\nTP = Total Points Possible");
         select.setStyle("-fx-font-size: 28");
         select.setAlignment(Pos.CENTER);
@@ -212,6 +241,9 @@ public class gradecalculator extends Application {
         BorderPane.setMargin(topHBox, new Insets(10, 10, 10, 10));
         mainPane.setTop(topHBox);  
         BorderPane.setMargin(slotsVBox, new Insets(10, 10, 20, 40));
+        BorderPane.setMargin(figureOutVBox, new Insets(10, 100, 10, 10));
+        BorderPane.setMargin(gradesText, new Insets(10, 0, 20, 20));
+        BorderPane.setMargin(averageBox, new Insets(10, 10, 10, 10));
         mainPane.setLeft(slotsVBox);  
         BorderPane.setMargin(middleVBox, new Insets(10, 70, 10, 10));
         BorderPane.setMargin(select, new Insets(10, 70, 10, 10));
@@ -301,10 +333,26 @@ public class gradecalculator extends Application {
             mainPane.setCenter(enterPointsVBox);
         });
 
+        finishButton.setOnAction(e -> {
+            mainPane.setLeft(null);
+            mainPane.setCenter(averageBox);
+            percentLabel.setText(getAverage()+"%");
+        });
+
+        continueButton.setOnAction(e -> {
+            mainPane.setCenter(percentAimingBox);
+        });
+
+        // continueButton2.setOnAction(e -> {
+        //     mainPane.setCenter(futureAverageBox);
+        // });
+
         addButton.setOnAction(e -> {
             if (earnedIsValid(earnedTextField) && posIsValid(possibleTextField)) {
                 instructions1.setText("Enter your score for each assignment, click finish when done.");
                     addValues(Double.parseDouble(earnedTextField.getText()), Double.parseDouble(possibleTextField.getText()));
+                    printGrades();
+                    mainPane.setLeft(gradesText);
                     possibleTextField.clear();
                     earnedTextField.clear();
                 }
@@ -342,6 +390,9 @@ public class gradecalculator extends Application {
 
     ArrayList<Double> earnedPointsArrayList = new ArrayList<Double>();
     ArrayList<Double> possiblePointsArrayList = new ArrayList<Double>();
+    ArrayList<String> gradesArrayList = new ArrayList<String>();
+    // string array list
+    // use for loop to add it to a string and then make the set text the string
 
     private void addValues(double earned, double possible) {
         earnedPointsArrayList.add(earned);
@@ -356,6 +407,29 @@ public class gradecalculator extends Application {
     private void showNext(TextField possibleField, TextField earnedField, int nextPos) {
         possibleField.setText("" + possiblePointsArrayList.get(nextPos));
         earnedField.setText("" + earnedPointsArrayList.get(nextPos));
+    }
+
+    private void printGrades() {
+        gradesArrayList.clear();
+        String s = "";
+        for (int i = 0; i < possiblePointsArrayList.size(); i++) {
+            gradesArrayList.add(earnedPointsArrayList.get(i) + "/" + possiblePointsArrayList.get(i) + " = " + (Math.round((earnedPointsArrayList.get(i)/possiblePointsArrayList.get(i))*100 * 100.0) / 100.0) + "%");
+        }
+        for (int i = 0; i < gradesArrayList.size(); i++) {
+            s += gradesArrayList.get(i) + "\n";
+        }
+        gradesText.setStyle("-fx-font-size: 24");
+        gradesText.setText(s);
+    }
+
+    private double getAverage() {
+        double possiblePointsTotal = 0;
+        double earnedPointsTotal = 0;
+        for (int i = 0; i < possiblePointsArrayList.size(); i++) {
+            possiblePointsTotal+=possiblePointsArrayList.get(i);
+            earnedPointsTotal+=earnedPointsArrayList.get(i);
+        }
+        return (Math.round((earnedPointsTotal/possiblePointsTotal)*100 * 100.0) / 100.0);
     }
     
 }
