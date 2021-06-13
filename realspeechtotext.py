@@ -10,12 +10,15 @@ class STT(Frame):
     def __init__(self, master, callback_on_selected, mic_index):
         super().__init__(master)
         self.ambient = False
+        self.talk = False
+        self.root=master
         self.callback_on_selected = callback_on_selected
         self.rec = sr.Recognizer()
         if mic_index == None:
             self.mic = sr.Microphone()
         else:
             self.mic = sr.Microphone(device_index=int(mic_index))
+        self.text = None
 
         self.grid()
         self.create_widgets()
@@ -29,21 +32,54 @@ class STT(Frame):
         Label(self, text = "").grid(row = 3, column = 3)
         Button(self, text = "select mic", fg = "white", bg = "grey", command = self.get_mic).grid(row =4, column = 1, columnspan = 2, sticky = E)
         Button(self, text = "toggle reduce ambient noise", fg = "white", bg = "grey", command = self.ambient_noise).grid(row =4, column = 3, columnspan = 2, sticky = E)
-        Label(self, text = "").grid(row = 5, column = 3)
+        Button(self, text = "toggle speech to text", fg = "white", bg = "grey", command = self.speechhhh).grid(row =5, column = 2, columnspan = 2, sticky = E)
         Label(self, text = "").grid(row = 6, column = 3)
+        Label(self, text = "").grid(row = 7, column = 3)
         self.text = Label(self, text = "")
         self.text.grid(row = 7, column = 3, columnspan = 5, rowspan=5)
 
     def speech(self):
+        if self.text != None:
+            self.text.destroy()
         speech = self.get_speech()
 
         if speech["error"]:
             print("ERROR: {}".format(speech["error"]))
         elif speech["transcription"] != None:
-            self.text = Label(self, text = speech["transcription"])
+            text = speech["transcription"]
+            self.text = Label(self, text = text)
             self.text.grid(row = 7, column = 3)
+            i = 0
+            speechh = text.split(" ")
+            #speechh = []
+            #while i < len(text):
+                #speechh.append(str(text[i]))
+            
+            i = 0
+            while i+1 < len(speechh):
+                #if speechh[i] == "new" and speech[i+1] == "line":
+                if speechh[i] + speechh[i+1] == "newline":
+                    speechh[i] = "\n"
+                    speechh.remove(speechh[i+1])
+                elif speechh[i].lower() == "tab" or speechh[i].lower() == "tab":
+                    speechh[i] = "\t"
+                elif speechh[i].lower() == "period" or speechh[i].lower() == "dot":
+                    speechh[i] = "."
+                elif speechh[i].lower() == "comma":
+                    speechh[i] = ","
+                elif speechh[i].lower() == "stop":
+                    self.talk = False
+                elif speechh[i+1] != "comma" and speechh[i+1] != "period":
+                    speechh[i] =  speechh[i]+" "
+                i += 1
+            i = 0
             with open('speech.txt', 'a') as f:
-                f.write(str(speech["transcription"] + " "))
+                while i < len(speechh):
+                    f.write(str(speechh[i]))
+                    i +=1
+                f.write(" ")
+        if self.talk:
+            self.handling()
             #time.sleep(3)
             #self.text.destroy()
             
@@ -89,3 +125,14 @@ class STT(Frame):
             self.ambient = True
         else:
             self.ambient = False
+
+    def speechhhh(self):
+        if self.talk == False:
+            self.talk = True
+            self.handling()
+        else:
+            self.talk = False
+        
+        
+    def handling(self):
+        self.root.after(50, self.speech)
