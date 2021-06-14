@@ -7,7 +7,7 @@ import time
 from tkinter import *
 
 class STT(Frame):
-    def __init__(self, master, callback_on_selected, mic_index):
+    def __init__(self, master, callback_on_selected, mic_index, file_name):
         super().__init__(master)
         self.ambient = False
         self.talk = False
@@ -19,6 +19,8 @@ class STT(Frame):
         else:
             self.mic = sr.Microphone(device_index=int(mic_index))
         self.text = None
+        self.file_name = file_name
+        open(file_name + ".txt","w+")
 
         self.grid()
         self.create_widgets()
@@ -73,7 +75,7 @@ class STT(Frame):
                     speechh[i] =  speechh[i]+" "
                 i += 1
             i = 0
-            with open('speech.txt', 'a') as f:
+            with open(self.file_name + '.txt', 'a') as f:
                 while i < len(speechh):
                     f.write(str(speechh[i]))
                     i +=1
