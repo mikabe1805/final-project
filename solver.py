@@ -1,6 +1,6 @@
 def solve(bo):
     find = find_empty(bo)
-    if not find:
+    if not find: 
         return True
     else:
         row, col = find
