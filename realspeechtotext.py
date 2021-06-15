@@ -37,7 +37,8 @@ class STT(Frame):
         Label(self, text = "").grid(row = 6, column = 3)
         Label(self, text = "").grid(row = 7, column = 3)
         self.text = Label(self, text = "")
-        self.text.grid(row = 7, column = 3, columnspan = 5, rowspan=5)
+        self.text = Text(height=5, width=30, yscrollcommand=True, xscrollcommand=True)
+        self.text.grid(row = 7, column = 0)
 
     def speech(self):
         speech = self.get_speech()
@@ -46,8 +47,6 @@ class STT(Frame):
             print("ERROR: {}".format(speech["error"]))
         elif speech["transcription"] != None:
             text = speech["transcription"]
-            self.text = Text(height=5, width=5, yscrollcommand=True, xscrollcommand=True)
-            self.text.grid(row = 8, column = 3)
             i = 0
             speechh = text.split(" ")
             #speechh = []
@@ -75,8 +74,10 @@ class STT(Frame):
             with open(self.file_name + '.txt', 'a') as f:
                 while i < len(speechh):
                     f.write(str(speechh[i]))
-                    self.text.insert(INSERT, speech[i]) 
+                    self.text.insert(INSERT, speechh[i]) 
                     i +=1
+                f.write(str(" "))
+                self.text.insert(INSERT, " ")
         if self.talk:
             self.handling()
             #time.sleep(3)
