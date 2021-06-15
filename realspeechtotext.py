@@ -18,7 +18,6 @@ class STT(Frame):
             self.mic = sr.Microphone()
         else:
             self.mic = sr.Microphone(device_index=int(mic_index))
-        self.text = None
         self.file_name = file_name
         open(file_name + ".txt","w+")
 
@@ -41,16 +40,14 @@ class STT(Frame):
         self.text.grid(row = 7, column = 3, columnspan = 5, rowspan=5)
 
     def speech(self):
-        if self.text != None:
-            self.text.destroy()
         speech = self.get_speech()
 
         if speech["error"]:
             print("ERROR: {}".format(speech["error"]))
         elif speech["transcription"] != None:
             text = speech["transcription"]
-            self.text = Label(self, text = text)
-            self.text.grid(row = 7, column = 3)
+            self.text = Text(height=5, width=5, yscrollcommand=True, xscrollcommand=True)
+            self.text.grid(row = 8, column = 3)
             i = 0
             speechh = text.split(" ")
             #speechh = []
@@ -78,8 +75,8 @@ class STT(Frame):
             with open(self.file_name + '.txt', 'a') as f:
                 while i < len(speechh):
                     f.write(str(speechh[i]))
+                    self.text.insert(INSERT, speech[i]) 
                     i +=1
-                f.write(" ")
         if self.talk:
             self.handling()
             #time.sleep(3)
