@@ -29,25 +29,6 @@ public class pomodoro extends Application{
     DecimalFormat dFormat = new DecimalFormat("00");
     TextField workInput = new TextField();
     Timer timer = new Timer();
-    TimerTask task = new TimerTask() {
-        public void run() {
-            second++;
-            System.out.println(minute + ":" + second);
-            updateText(workInput, minute, second);
-            if (second == 60) {
-                second = 0;
-                minute++;
-            }
-            if (second == 60 && minute == 1) {
-                System.out.println("Pomodoro finished! Take a break!");
-                timer.cancel();
-            }
-        }
-    };
-
-    public void start() {
-        timer.scheduleAtFixedRate(task, 1000, 1000);
-    }
 
     public static void main(String[] args) {
         launch(args);
@@ -65,9 +46,8 @@ public class pomodoro extends Application{
         grid.setHgap(10);
         
         //horizontal buttons, "Work" "Short Break" "Long Break"
-        Button button = new Button();
+        Button button = new Button("Work Time");
         button.setMaxWidth(100);
-        button.setText("Work Time");
         GridPane.setConstraints(button, 16, 5);
 
         //TextField workInput = new TextField();
@@ -77,19 +57,18 @@ public class pomodoro extends Application{
             inputBox(workInput);
             workInput.setStyle("-fx-font-size: 64; -fx-background-color: salmon; -fx-border-color: black; -fx-text-inner-color: white;");
             workInput.setEditable(true);
-            ttt.start();
+            //ttt.start();
         });
         //only allow integers to be entered (add it), only let each one go up to 60
         //user cannot edit ":"
 
-        String test = String.valueOf(workInput.getText());
-        String[] workTimeIn = test.split(" : ");
-        int workMin = Integer.parseInt(workTimeIn[0]);
-        int workSec = Integer.parseInt(workTimeIn[1]);
+        // String test = String.valueOf(workInput.getText());
+        // String[] workTimeIn = test.split(" : ");
+        // int workMin = Integer.parseInt(workTimeIn[0]);
+        // int workSec = Integer.parseInt(workTimeIn[1]);
 
-        Button button2 = new Button();
+        Button button2 = new Button("Short Break");
         button2.setMaxWidth(100);
-        button2.setText("Short Break");
         GridPane.setConstraints(button2, 17, 5);
         button2.setOnAction(e -> {
             inputBox(workInput);
@@ -101,9 +80,8 @@ public class pomodoro extends Application{
         int shortMin = Integer.parseInt(shortBreakIn[0]);
         int shortSec = Integer.parseInt(shortBreakIn[1]);
 
-        Button button3 = new Button();
+        Button button3 = new Button("Long Break");
         button3.setMaxWidth(100);
-        button3.setText("Long Break");
         GridPane.setConstraints(button3, 18, 5);
         button3.setOnAction(e -> {
             workInput.setStyle("-fx-font-size: 64; -fx-background-color: royalblue; -fx-border-color: black; -fx-text-inner-color: white;");
@@ -129,24 +107,27 @@ public class pomodoro extends Application{
         grid2.setHgap(10);
 
 
-        Button button4 = new Button();
+        Button button4 = new Button("Start");
         button4.setMaxWidth(100);
-        button4.setText("Start");
         GridPane.setConstraints(button4, 0, 0);
         button4.setOnAction(e -> {
-            timer(workInput, workMin, workSec, ttt);
+            //timer(workInput, workMin, workSec, ttt);
             //ttt.start();
+            pomodoroTimer();
+            workInput.setEditable(false);
         });
 
-        Button button5 = new Button();
-        button5.setMaxWidth(100);
-        button5.setText("Stop");
-        GridPane.setConstraints(button5, 1, 0);
+        Button button5 = new Button("Pause");
+        //
 
-        Button button6 = new Button();
+        Button button6 = new Button("Stop");
         button6.setMaxWidth(100);
-        button6.setText("Reset");
-        GridPane.setConstraints(button6, 43, 0);
+        GridPane.setConstraints(button6, 1, 0);
+
+        Button button7 = new Button();
+        button7.setMaxWidth(100);
+        button7.setText("Reset");
+        GridPane.setConstraints(button7, 43, 0);
 
         grid2.getChildren().addAll(button4, button5, button6);
 
@@ -167,7 +148,7 @@ public class pomodoro extends Application{
     public void inputBox (TextField inputt) {
         inputt.setMaxWidth(500);
         inputt.setStyle("-fx-font-size: 64; -fx-border-color: black;");
-        inputt.setText("00 : 00");
+        inputt.setText("00:00");
         inputt.setAlignment(Pos.CENTER);
     }
 
@@ -175,7 +156,7 @@ public class pomodoro extends Application{
 
         for (int i = seconds; i <= 0; i++) {
             inputt.setText("" + seconds);
-            tt.start();
+            //tt.start();
         }
 
         for (int i = minutes; i <= 0; i++) {
@@ -183,11 +164,38 @@ public class pomodoro extends Application{
         }
         //FIGURE OUT how to only move through the loop if a second/minute passes
 
-        //
-
     }
 
     public void updateText(TextField okay, int minutes, int seconds) {
         okay.setText(minutes + " : " + seconds);
+    }
+
+    public void setTime(int time) //function to display timer
+    {
+        long timeNow = 1000*time;
+        long second = (timeNow / 1000) % 60;
+        long minute = (timeNow / (1000 * 60)) % 60;
+        //long hour = (timeNow / (1000 * 60 * 60)) % 24;
+        workInput.setText(String.format("%02d:%02d", minute, second));
+    }
+
+    public void pomodoroTimer() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            int count = 0;
+            String test = String.valueOf(workInput.getText());
+            String[] workTimeIn = test.split(" : ");
+            int workMin = Integer.parseInt(workTimeIn[0]);
+            int workSec = Integer.parseInt(workTimeIn[1]);
+            int counterLimit = (workMin * 60 + (workSec *60));
+            @Override
+            public void run() {
+                count++;
+                setTime(count);
+                if (count == counterLimit) {
+                    timer.cancel();
+                }
+            }
+        }, 0, 1000);
     }
 }
