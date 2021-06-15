@@ -15,9 +15,40 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+// import javax.swing.Timer;
+//import java.awt.event.ActionEvent;
+// import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class pomodoro extends Application{
+    int second = 0;
+    int minute = 0;
+    String ddMinute, ddSecond;
+    DecimalFormat dFormat = new DecimalFormat("00");
+    TextField workInput = new TextField();
+    Timer timer = new Timer();
+    TimerTask task = new TimerTask() {
+        public void run() {
+            second++;
+            System.out.println(minute + ":" + second);
+            updateText(workInput, minute, second);
+            if (second == 60) {
+                second = 0;
+                minute++;
+            }
+            if (second == 60 && minute == 1) {
+                System.out.println("Pomodoro finished! Take a break!");
+                timer.cancel();
+            }
+        }
+    };
+
+    public void start() {
+        timer.scheduleAtFixedRate(task, 1000, 1000);
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -25,6 +56,8 @@ public class pomodoro extends Application{
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Pomodoro Timer");
+
+        pomodoro ttt = new pomodoro();
 
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
@@ -37,13 +70,14 @@ public class pomodoro extends Application{
         button.setText("Work Time");
         GridPane.setConstraints(button, 16, 5);
 
-        TextField workInput = new TextField();
+        //TextField workInput = new TextField();
         inputBox(workInput);
         workInput.setEditable(false);
         button.setOnAction(e -> {
             inputBox(workInput);
             workInput.setStyle("-fx-font-size: 64; -fx-background-color: salmon; -fx-border-color: black; -fx-text-inner-color: white;");
             workInput.setEditable(true);
+            ttt.start();
         });
         //only allow integers to be entered (add it), only let each one go up to 60
         //user cannot edit ":"
@@ -94,12 +128,14 @@ public class pomodoro extends Application{
         grid2.setVgap(10);
         grid2.setHgap(10);
 
+
         Button button4 = new Button();
         button4.setMaxWidth(100);
         button4.setText("Start");
         GridPane.setConstraints(button4, 0, 0);
         button4.setOnAction(e -> {
-            timer(workInput, workMin, workSec);
+            timer(workInput, workMin, workSec, ttt);
+            //ttt.start();
         });
 
         Button button5 = new Button();
@@ -113,6 +149,7 @@ public class pomodoro extends Application{
         GridPane.setConstraints(button6, 43, 0);
 
         grid2.getChildren().addAll(button4, button5, button6);
+
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(grid);
@@ -134,10 +171,11 @@ public class pomodoro extends Application{
         inputt.setAlignment(Pos.CENTER);
     }
 
-    public void timer (TextField inputt, int minutes, int seconds) {
+    public void timer (TextField inputt, int minutes, int seconds, pomodoro tt) {
 
         for (int i = seconds; i <= 0; i++) {
             inputt.setText("" + seconds);
+            tt.start();
         }
 
         for (int i = minutes; i <= 0; i++) {
@@ -145,5 +183,11 @@ public class pomodoro extends Application{
         }
         //FIGURE OUT how to only move through the loop if a second/minute passes
 
+        //
+
+    }
+
+    public void updateText(TextField okay, int minutes, int seconds) {
+        okay.setText(minutes + " : " + seconds);
     }
 }
