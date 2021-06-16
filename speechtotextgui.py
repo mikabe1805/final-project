@@ -2,6 +2,7 @@ import tkinter
 
 from realspeechtotext import STT
 from miclist import ML
+from filename import FL
 
 class manager (object):
 
@@ -9,12 +10,30 @@ class manager (object):
         self.root = tkinter.Tk()
         self.current_screen = None
         self.mic_index = None
+        self.file_name = None
     
+    def get_filename(self):
+        self.root.title ("Choose file")
+        # Creates and displays a Character Selection screen
+        self.current_screen = FL(master = self.root, returnn = self.move_on)
+
+    def move_on(self, filename):
+        self.file_name = filename
+        for i in filename:
+            if i == ".":
+                filename = filename.split(".")
+                self.file_name = filename[0]
+
+        self.current_screen.destroy()
+
+        # Continue on - set up the Prepare To Battle screen!
+        self.setup_first()
+
     def setup_first (self):
         # Changes the window's title
         self.root.title ("Speech to text")
         # Creates and displays a Character Selection screen
-        self.current_screen = STT(master = self.root, callback_on_selected = self.switch, mic_index = self.mic_index)
+        self.current_screen = STT(master = self.root, callback_on_selected = self.switch, mic_index = self.mic_index, file_name=self.file_name)
 
     def switch (self):
           
@@ -51,7 +70,7 @@ def main():
     # Create the battle manager, which creates the tkinter window.
     battle = manager()
     # The program begins with the Character Selection screen!
-    battle.setup_first()
+    battle.get_filename()
     # Run the program!
     battle.root.mainloop()
  

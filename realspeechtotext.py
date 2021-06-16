@@ -7,7 +7,7 @@ import time
 from tkinter import *
 
 class STT(Frame):
-    def __init__(self, master, callback_on_selected, mic_index):
+    def __init__(self, master, callback_on_selected, mic_index, file_name):
         super().__init__(master)
         self.ambient = False
         self.talk = False
@@ -18,7 +18,8 @@ class STT(Frame):
             self.mic = sr.Microphone()
         else:
             self.mic = sr.Microphone(device_index=int(mic_index))
-        self.text = None
+        self.file_name = file_name
+        open(file_name + ".txt","w+")
 
         self.grid()
         self.create_widgets()
@@ -36,19 +37,16 @@ class STT(Frame):
         Label(self, text = "").grid(row = 6, column = 3)
         Label(self, text = "").grid(row = 7, column = 3)
         self.text = Label(self, text = "")
-        self.text.grid(row = 7, column = 3, columnspan = 5, rowspan=5)
+        self.text = Text(height=20, width=80, yscrollcommand=True, xscrollcommand=True)
+        self.text.grid(row = 7, column = 0)
 
     def speech(self):
-        if self.text != None:
-            self.text.destroy()
         speech = self.get_speech()
 
         if speech["error"]:
             print("ERROR: {}".format(speech["error"]))
         elif speech["transcription"] != None:
             text = speech["transcription"]
-            self.text = Label(self, text = text)
-            self.text.grid(row = 7, column = 3)
             i = 0
             speechh = text.split(" ")
             #speechh = []
@@ -67,17 +65,19 @@ class STT(Frame):
                     speechh[i] = "."
                 elif speechh[i].lower() == "comma":
                     speechh[i] = ","
-                elif speechh[i].lower() == "stop":
+                elif speechh[i].lower() == "pause" or speechh[i].lower() == "stop":
                     self.talk = False
                 elif speechh[i+1] != "comma" and speechh[i+1] != "period":
                     speechh[i] =  speechh[i]+" "
                 i += 1
             i = 0
-            with open('speech.txt', 'a') as f:
+            with open(self.file_name + '.txt', 'a') as f:
                 while i < len(speechh):
                     f.write(str(speechh[i]))
+                    self.text.insert(INSERT, speechh[i]) 
                     i +=1
-                f.write(" ")
+                f.write(str(" "))
+                self.text.insert(INSERT, " ")
         if self.talk:
             self.handling()
             #time.sleep(3)
