@@ -37,7 +37,7 @@ class STT(Frame):
         Label(self, text = "").grid(row = 6, column = 3)
         Label(self, text = "").grid(row = 7, column = 3)
         self.text = Label(self, text = "")
-        self.text = Text(height=5, width=30, yscrollcommand=True, xscrollcommand=True)
+        self.text = Text(height=20, width=80, yscrollcommand=True, xscrollcommand=True)
         self.text.grid(row = 7, column = 0)
 
     def speech(self):
@@ -65,7 +65,7 @@ class STT(Frame):
                     speechh[i] = "."
                 elif speechh[i].lower() == "comma":
                     speechh[i] = ","
-                elif speechh[i].lower() == "stop":
+                elif speechh[i].lower() == "pause" or speechh[i].lower() == "stop":
                     self.talk = False
                 elif speechh[i+1] != "comma" and speechh[i+1] != "period":
                     speechh[i] =  speechh[i]+" "
