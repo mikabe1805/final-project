@@ -15,20 +15,27 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-// import javax.swing.Timer;
-//import java.awt.event.ActionEvent;
-// import java.awt.event.ActionListener;
-//import java.text.DecimalFormat;
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.*;
 
 public class pomodoro extends Application{
+    Scene scene1, scene2;
     int second = 0;
     int minute = 0;
+    int pomoNum = 0;
+    String ding1 = "ding-sound-effect_2.mp3";
     boolean paused;
     boolean stopped;
+    boolean resetted;
     TextField workInput = new TextField();
+    Label instructions = new Label("The Pomodoro Technique is a time management method which typically breaks down work into intervals.\nIt is typically broken down into working for 25 minutes, and taking a 5 minute break. The process repeats until the task is completed.\n\nTo use this program, you can select either to work, or to take a short/long break. Type in the amount of\ntime you'd like to spend for each task and press start to begin.");
+    Label pomoCount = new Label("Pomodoro Count: " + pomoNum);
     Timer timer = new Timer();
+    Media sound = new Media(new File(ding1).toURI().toString());
+    MediaPlayer mediaPlayer = new MediaPlayer(sound);
 
     public static void main(String[] args) {
         launch(args);
@@ -38,19 +45,44 @@ public class pomodoro extends Application{
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Pomodoro Timer");
 
+        
+        
+
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
         grid.setVgap(10);
         grid.setHgap(10);
+
+        VBox grid0 = new VBox(20);
+        grid0.setPadding(new Insets(10, 10, 10, 10));
+
+        instructions.setAlignment(Pos.CENTER);
+
+        Button button0 = new Button("Instructions");
+        GridPane.setConstraints(button0, 0, 0);
+        button0.setOnAction(e -> {
+            primaryStage.setScene(scene2);
+        });
+
+        Button backButton = new Button("< Back");
+        backButton.setOnAction(e -> primaryStage.setScene(scene1));
         
+        grid0.getChildren().addAll(backButton, instructions);
+
+        //pomoCount label
+        GridPane.setConstraints(pomoCount, 11, 0);
+
         //horizontal buttons, "Work" "Short Break" "Long Break"
         Button button = new Button("Work Time");
         button.setMaxWidth(100);
-        GridPane.setConstraints(button, 16, 5);
+        GridPane.setConstraints(button, 9, 4);
 
         inputBox(workInput);
         workInput.setEditable(false);
         button.setOnAction(e -> {
+            stopped = false;
+            resetted = false;
+            paused = false;
             inputBox(workInput);
             workInput.setStyle("-fx-font-size: 64; -fx-background-color: salmon; -fx-border-color: black; -fx-text-inner-color: white;");
             workInput.setEditable(true);
@@ -60,7 +92,7 @@ public class pomodoro extends Application{
 
         Button button2 = new Button("Short Break");
         button2.setMaxWidth(100);
-        GridPane.setConstraints(button2, 17, 5);
+        GridPane.setConstraints(button2, 10, 4);
         button2.setOnAction(e -> {
             timer.cancel();
             workInput.setEditable(true);
@@ -72,7 +104,7 @@ public class pomodoro extends Application{
         
         Button button3 = new Button("Long Break");
         button3.setMaxWidth(100);
-        GridPane.setConstraints(button3, 18, 5);
+        GridPane.setConstraints(button3, 11, 4);
         button3.setOnAction(e -> {
             timer.cancel();
             inputBox(workInput);
@@ -81,7 +113,7 @@ public class pomodoro extends Application{
             workInput.setStyle("-fx-font-size: 64; -fx-background-color: royalblue; -fx-border-color: black; -fx-text-inner-color: white;");
         });
 
-        grid.getChildren().addAll(button, button2, button3);
+        grid.getChildren().addAll(button0, pomoCount, button, button2, button3);
 
         // input boxes
         HBox options = new HBox();
@@ -101,56 +133,79 @@ public class pomodoro extends Application{
         GridPane.setConstraints(button4, 0, 0);
         button4.setOnAction(e -> {
             stopped = false;
+            resetted = false;
             pomodoroTimer();
+            pomoNum++;
             workInput.setEditable(false);
-            if (minute == 0 && second == 0) {
-                System.out.println("where did i go wrong-");
+            updatePomo();
+        });
+
+        Button button5 = new Button("Pause");
+        GridPane.setConstraints(button5, 2, 0);
+        button5.setOnAction(e -> {
+            //pause the timer
+            if (!paused) {
+                timer.cancel();
+                paused = true;
+                button5.setText("Unpause");
+            }
+            else if (paused) {
+                paused = false;
+                button5.setText("Pause");
+                if (minute <= 0 && second <= 0) {
+                    pomodoroTimer();
+                }
             }
         });
 
-        // Button button5 = new Button("Pause");
-        // GridPane.setConstraints(button5, 1, 0);
-        // button5.setOnAction(e -> {
-        //     //pause the timer
-        //     if (!paused) {
-        //         paused = true;
-        //         button5.setText("Unpause");
-        //     }
-        //     else if (paused) {
-        //         paused = false;
-        //         button5.setText("Pause");
-        //     }
-        // });
-
         Button button6 = new Button("Stop");
         button6.setMaxWidth(300);
-        GridPane.setConstraints(button6, 2, 0);
+        GridPane.setConstraints(button6, 3, 0);
         button6.setOnAction(e -> {
             inputBox(workInput);
             timer.cancel();
             timer.purge();
             stopped = true;
+            pomoNum--;
+            if (pomoNum < 0) {
+                pomoNum = 0;
+            }
+            updatePomo();
         });
 
         Button button7 = new Button("Reset");
         button7.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setConstraints(button7, 39, 0);
+        GridPane.setConstraints(button7, 30, 0);
         button7.setOnAction(e -> {
+            inputBox(workInput);
             timer.cancel();
-            workInput.setText("00:00");
+            timer.purge();
+            resetted = true;
+            stopped = false;
+            paused = false;
+            button5.setText("Pause");
+            pomoNum = 0;
+            updatePomo();
+            workInput.setText("00 : 00");
         });
 
-        grid2.getChildren().addAll(button4, button6, button7);
+        grid2.getChildren().addAll(button4, button5, button6, button7);
 
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(grid);
         borderPane.setCenter(options);
         borderPane.setBottom(grid2);
+        //borderPane.setLeft(grid0);
         
-        Scene scene = new Scene(borderPane, 600, 400);
-                
-        primaryStage.setScene(scene);
+        scene1 = new Scene(borderPane, 600, 400);
+        
+        //Layout 2
+        // StackPane layout = new StackPane();
+        // layout.getChildren().addAll(instructions);
+        scene2 = new Scene(grid0, 600, 400);
+
+        primaryStage.setScene(scene1);
         primaryStage.show();
     }
 
@@ -181,7 +236,7 @@ public class pomodoro extends Application{
             String[] workTimeIn = test.split(" : ");
             int workMin = Integer.parseInt(workTimeIn[0]);
             int workSec = Integer.parseInt(workTimeIn[1]);
-            int counterLimit = (workMin * 60 + (workSec));
+            int count = (workMin * 60 + (workSec));
             
             @Override
             public void run() {
@@ -192,19 +247,19 @@ public class pomodoro extends Application{
                     else if (workSec < 0) {
                         workSec = 0;
                     }
-                    counterLimit--;
-                    setTime(counterLimit);
-                    if (counterLimit == 0) {
+                    count--;
+                    setTime(count);
+                    if (count == 0) {
                         timer.cancel();
+                        mediaPlayer.play();
                     }
                 }
-                if (stopped) {
+                if (stopped ^ resetted ^ paused) {
                     timer.cancel();
                 }
-
                 
             }
-        }, 1000, 1000);
+        }, 0, 1000);
     }
 
     public void shortTimer() {
@@ -214,7 +269,7 @@ public class pomodoro extends Application{
             String[] shortBreakIn = test2.split(" : ");
             int shortMin = Integer.parseInt(shortBreakIn[0]);
             int shortSec = Integer.parseInt(shortBreakIn[1]);
-            int counterLimit2 = (shortMin * 60 + (shortSec));
+            int count2 = (shortMin * 60 + (shortSec));
             @Override
             public void run() {
                 if (shortMin < 0) {
@@ -223,18 +278,19 @@ public class pomodoro extends Application{
                 else if (shortSec < 0) {
                     shortSec = 0;
                 }
-                counterLimit2--;
-                setTime(counterLimit2);
-                if (counterLimit2 == 0) {
+                count2--;
+                setTime(count2);
+                if (count2 == 0) {
                     timer.cancel();
                     pomodoroTimer();
+                    mediaPlayer.play();
                 }
-                if (stopped) {
+                if (stopped ^ resetted ^ paused) {
                     timer.cancel();
                     pomodoroTimer();
                 }
             }
-        }, 1000, 1000);
+        }, 0, 1000);
     }
 
     public void longTimer() {
@@ -244,7 +300,7 @@ public class pomodoro extends Application{
             String[] longBreakIn = test3.split(" : ");
             int longMin = Integer.parseInt(longBreakIn[0]);
             int longSec = Integer.parseInt(longBreakIn[1]);
-            int counterLimit3 = (longMin * 60 + (longSec));
+            int count3 = (longMin * 60 + (longSec));
             @Override
             public void run() {
                 if (longMin < 0) {
@@ -253,14 +309,23 @@ public class pomodoro extends Application{
                 else if (longSec < 0) {
                     longSec = 0;
                 }
-                counterLimit3--;
-                setTime(counterLimit3);
-                if (counterLimit3 == 0) {
+                count3--;
+                setTime(count3);
+                if (count3 == 0) {
+                    timer.cancel();
+                    pomodoroTimer();
+                    mediaPlayer.play();
+                }
+                if (stopped ^ resetted ^ paused) {
                     timer.cancel();
                     pomodoroTimer();
                 }
                 
             }
         }, 0, 1000);
+    }
+
+    public void updatePomo() {
+        pomoCount.setText("Pomodoro Count: " + pomoNum);
     }
 }
