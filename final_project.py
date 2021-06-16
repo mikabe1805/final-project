@@ -36,6 +36,8 @@ class manager (object):
             os.system('java --module-path C:/Users/mikus/Downloads/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml,javafx.media gradecalculator')
         elif self.choice == "pomodoro":
             os.system('java --module-path C:/Users/mikus/Downloads/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml,javafx.media pomodoro')
+        elif self.choice == "tutorialhelper":
+            os.system('java --module-path C:/Users/mikus/Downloads/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml,javafx.media tutorialHelper')
         self.choose()
 
     def switch (self):

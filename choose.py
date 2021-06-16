@@ -11,7 +11,7 @@ class Choose(Frame):
 
     def create_widgets(self):
         # enter the name of the file you would like to create/edit
-        Label(self, text = "Select the program you'd like to enter!").grid(row = 0, column = 0, sticky = W)
+        Label(self, text = "Select your desired program!").grid(row = 0, column = 0, sticky = W)
 
         Label(self, text = "").grid(row = 1, column = 0)
         # create mic selected button
@@ -21,7 +21,9 @@ class Choose(Frame):
 
         Button(self, text = "Pomodoro", fg = "white", bg = "grey", command = self.pomodoro).grid(row = 4, column = 0, columnspan = 2, sticky = W)
 
-        Button(self, text = "Games", fg = "white", bg = "grey", command = self.games).grid(row = 5, column = 0, columnspan = 2, sticky = W)
+        Button(self, text = "Tutorial Helper", fg = "white", bg = "grey", command = self.tutorialhelper).grid(row = 5, column = 0, columnspan = 2, sticky = W)
+
+        Button(self, text = "Games", fg = "white", bg = "grey", command = self.games).grid(row = 6, column = 0, columnspan = 2, sticky = W)
 
     def speechtotext(self):
         self.returnn("speechtotext")
@@ -34,3 +36,6 @@ class Choose(Frame):
 
     def pomodoro(self):
         self.returnn("pomodoro")
+
+    def tutorialhelper(self):
+        self.returnn("tutorialhelper")

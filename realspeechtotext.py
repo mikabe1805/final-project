@@ -59,16 +59,24 @@ class STT(Frame):
                 if speechh[i] + speechh[i+1] == "newline":
                     speechh[i] = "\n"
                     speechh.remove(speechh[i+1])
-                elif speechh[i].lower() == "tab" or speechh[i].lower() == "tab":
-                    speechh[i] = "\t"
-                elif speechh[i].lower() == "period" or speechh[i].lower() == "dot":
-                    speechh[i] = "."
-                elif speechh[i].lower() == "comma":
-                    speechh[i] = ","
-                elif speechh[i].lower() == "pause" or speechh[i].lower() == "stop":
-                    self.talk = False
-                elif speechh[i+1] != "comma" and speechh[i+1] != "period":
+                elif speechh[i+1] != "comma" and speechh[i+1] != "period" and speechh[i+1] != "period" and speechh[i+1] != "colon" and speechh[i+1] != "semicolon":
                     speechh[i] =  speechh[i]+" "
+                i += 1
+
+            i = 0
+            while i < len(speechh):
+                if speechh[i] == "tab":
+                    speechh[i] = "\t"
+                elif speechh[i] == "period" or speechh[i] == "dot":
+                    speechh[i] = "."
+                elif speechh[i] == "comma":
+                    speechh[i] = ","
+                elif speechh[i] == "semicolon":
+                    speechh[i] = ";"
+                elif speechh[i] == "colon":
+                    speechh[i] = ":"
+                elif speechh[i] == "pause" or speechh[i] == "stop":
+                    self.talk = False
                 i += 1
             i = 0
             with open(self.file_name + '.txt', 'a') as f:
@@ -118,6 +126,7 @@ class STT(Frame):
         return response
 
     def get_mic(self):
+        self.text.destroy()
         self.callback_on_selected()
 
     def ambient_noise(self):
